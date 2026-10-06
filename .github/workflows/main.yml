@@ -1,0 +1,31 @@
+name: Build Android APK
+# 允许网页手动触发打包
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取代码
+      - uses: actions/checkout@v4
+      # 设置JDK，Gradle8+需要JDK17，旧项目用jdk11
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      # 赋予gradlew执行权限
+      - name: Grant execute permission
+        run: chmod +x gradlew
+      # 编译Debug APK
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+      # 上传APK为制品，打包完可以下载
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
